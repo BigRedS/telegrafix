@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegrafix
+  labels:
+    app: telegrafix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegrafix
+  template:
+    metadata:
+      labels:
+        app: telegrafix
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: telegraf
+          image: telegraf:1.40-alpine
+          args:
+            - "--config"
+            - /etc/telegraf/telegraf.conf
+            - "--config"
+            - /etc/telegraf/output.conf
+          env:
+            - name: CORALOGIX_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: coralogix-keys
+                  key: PRIVATE_KEY
+                  optional: true
+          volumeMounts:
+            - name: telegraf-config
+              mountPath: /etc/telegraf
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+      volumes:
+        - name: telegraf-config
+          configMap:
+            name: telegraf-config

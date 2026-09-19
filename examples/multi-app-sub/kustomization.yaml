@@ -1,0 +1,9 @@
+resources:
+  - https://github.com/BigRedS/telegrafix?ref=v1.0.0
+
+patches:
+  - path: telegraf-config.yaml
+    target:
+      version: v1
+      kind: ConfigMap
+      name: telegraf-config

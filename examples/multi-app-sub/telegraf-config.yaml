@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf-config
+data:
+  telegraf.conf: |
+    [agent]
+      interval = "30s"
+      flush_interval = "10s"
+
+    [[inputs.http_response]]
+      urls = ["https://avi.st"]
+      response_status_code = 200
+      response_timeout = "5s"
+      [inputs.http_response.tags]
+        cx_route = "avi-st"
+
+    [[inputs.http_response]]
+      urls = ["https://pics.avi.st"]
+      response_status_code = 200
+      response_timeout = "5s"
+      [inputs.http_response.tags]
+        cx_route = "pics"
+  output.conf: |
+    [[outputs.opentelemetry]]
+      service_address = "https://ingress.${CORALOGIX_DOMAIN:-eu2.coralogix.com}:443/v1/metrics"
+      timeout = "5s"
+      [outputs.opentelemetry.tagpass]
+        cx_route = ["avi-st"]
+      [outputs.opentelemetry.coralogix]
+        private_key = "${CORALOGIX_PRIVATE_KEY:-dummy}"
+        application = "avi-st"
+        subsystem = "synthetics"
+
+    [[outputs.opentelemetry]]
+      service_address = "https://ingress.${CORALOGIX_DOMAIN:-eu2.coralogix.com}:443/v1/metrics"
+      timeout = "5s"
+      [outputs.opentelemetry.tagpass]
+        cx_route = ["pics"]
+      [outputs.opentelemetry.coralogix]
+        private_key = "${CORALOGIX_PRIVATE_KEY:-dummy}"
+        application = "pics"
+        subsystem = "synthetics"

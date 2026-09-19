@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Re-exports base/ so remote overlays can point at the repo root URL.
+# Pointing directly at .../base also works.
+resources:
+  - base
